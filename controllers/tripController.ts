@@ -1,4 +1,16 @@
-import { collection, doc, addDoc, getDocs, deleteDoc, getDoc, Timestamp, query, orderBy, updateDoc } from "firebase/firestore";
+import {
+  collection,
+  doc,
+  addDoc,
+  getDocs,
+  getDoc,
+  Timestamp,
+  query,
+  orderBy,
+  updateDoc,
+  where,
+  writeBatch,
+} from "firebase/firestore";
 import { db } from "@/lib/firebase";
 
 export const tripController = {
@@ -26,10 +38,31 @@ export const tripController = {
   },
 
   deleteTrip: async (tripId: string) => {
-    await deleteDoc(doc(db, "trips", tripId));
+    // Cascade delete all related members and expenses before deleting the trip document.
+    const membersQuery = query(collection(db, "members"), where("tripId", "==", tripId));
+    const expensesQuery = query(collection(db, "expenses"), where("tripId", "==", tripId));
+
+    const [membersSnapshot, expensesSnapshot] = await Promise.all([
+      getDocs(membersQuery),
+      getDocs(expensesQuery),
+    ]);
+
+    const refsToDelete = [
+      ...membersSnapshot.docs.map((d) => d.ref),
+      ...expensesSnapshot.docs.map((d) => d.ref),
+      doc(db, "trips", tripId),
+    ];
+
+    // Firestore batches allow max 500 writes per batch.
+    for (let i = 0; i < refsToDelete.length; i += 500) {
+      const batch = writeBatch(db);
+      const chunk = refsToDelete.slice(i, i + 500);
+      chunk.forEach((ref) => batch.delete(ref));
+      await batch.commit();
+    }
   },
 
-  updateTrip: async (tripId: string, data: any) => {
+  updateTrip: async (tripId: string, data: Record<string, unknown>) => {
     const tripRef = doc(db, "trips", tripId);
     await updateDoc(tripRef, data);
     return { success: true };

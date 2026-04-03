@@ -51,7 +51,7 @@ export default function TripSettlementPage({
 
   if (loading) {
     return (
-      <div className="min-h-screen px-4 py-8 text-center text-sm font-medium text-slate-600 sm:text-base">
+      <div className="min-h-screen px-4 py-8 text-center text-sm font-medium text-black sm:text-base">
         Loading settlement...
       </div>
     );
@@ -63,24 +63,31 @@ export default function TripSettlementPage({
   const summary = calculateTripSummary(members, expenses, quotePerPerson);
 
   return (
-    <main className="min-h-full bg-gradient-to-b from-slate-50 via-slate-50 to-white px-4 py-6 text-slate-800 sm:px-6 sm:py-8">
+    <main className="min-h-full bg-white px-4 py-6 text-black sm:px-6 sm:py-8">
       <div className="mx-auto max-w-5xl space-y-6 sm:space-y-8">
         <header className="space-y-3">
-          <Link
-            href="/"
-            className="inline-flex items-center text-sm font-medium text-slate-600 transition hover:text-slate-900"
-          >
-            Back to all trips
-          </Link>
-
-          <div className="space-y-2">
-            <h1 className="text-2xl font-bold text-slate-900 sm:text-3xl md:text-4xl">
-              {trip.name} | Settlement
-            </h1>
-            <p className="text-sm text-slate-600 sm:text-base">
-              Final balances for all members.
-            </p>
+          <div className="flex flex-wrap items-center justify-between gap-3">
+            <h1 className="text-2xl font-bold text-black sm:text-3xl md:text-4xl">{trip.name}</h1>
+            <Link
+              href="/"
+              className="inline-flex items-center gap-2 rounded-full bg-orange-100 px-4 py-2 text-sm font-semibold text-black transition hover:bg-orange-200"
+            >
+              <svg
+                aria-hidden="true"
+                viewBox="0 0 24 24"
+                className="h-4 w-4"
+                fill="none"
+                stroke="currentColor"
+                strokeWidth="2.2"
+                strokeLinecap="round"
+                strokeLinejoin="round"
+              >
+                <path d="m15 18-6-6 6-6" />
+              </svg>
+              Back
+            </Link>
           </div>
+          <p className="text-sm text-black sm:text-base">Review final balances for your group.</p>
 
           <TripPageTabs tripId={tripId} />
         </header>
